@@ -2,10 +2,10 @@ import { ICONS, LOGO } from '../icon.js';
 
 const NAV = [
     { href: '/src/main/resources/templates/', name: 'Tổng quan', icon: 'dashboard' },
-    { href: '/src/main/resources/templates/index2.html', name: 'Bàn $ Khu vực', icon: 'table' },
-    { href: '/src/main/resources/templates/index2.html', name: 'Thực đơn', icon: 'menu' },
-    { href: '/src/main/resources/templates/index2.html', name: 'Kho nguyên liệu', icon: 'storage' },
-    { href: '/src/main/resources/templates/index2.html', name: 'Cài đặt', icon: 'setting' },
+    { href: '#', name: 'Bàn $ Khu vực', icon: 'table' },
+    { href: '#', name: 'Thực đơn', icon: 'menu' },
+    { href: '#', name: 'Kho nguyên liệu', icon: 'storage' },
+    { href: '#', name: 'Cài đặt', icon: 'setting' },
 
 ];
 
@@ -41,12 +41,13 @@ class AppNavigation extends HTMLElement {
                             ${items}
                         </ul>
                     </div>
-                </div>
-                <div id="navigation__footer" class="flex items-center justify-center m-3">
+                    <div id="navigation__footer" class="flex items-center justify-center m-3">
                     <button id="navigation__footer-button" class="w-13 h-15 text-primary-600 bg-primary-200 rounded-lg flex items-center justify-center">
                         ${ICONS.logout}
                     </button>
                 </div>
+                </div>
+                
             </nav>
         `;
     }
