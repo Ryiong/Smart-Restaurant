@@ -1,1 +1,3 @@
-import './components/app-login.js';
+import './fragments/AppLogin.js';
+import './fragments/AppReset.js';
+import './fragments/AppRegister.js';

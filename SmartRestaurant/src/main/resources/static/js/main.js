@@ -1,1 +1,1 @@
-import './components/app-navigation.js';
+import './components/AppNavigation.js';

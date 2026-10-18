@@ -104,4 +104,7 @@
     font-weight: 400;
     line-height: 1.6;
   }
+  input::-ms-reveal,
+  input::-ms-clear { display: none; }
+  
 }
