@@ -58,6 +58,9 @@
   --color-support-700: #959B9C;
   --color-support-800: #6F7374;
   --color-support-900: #484B4C;
+
+  --color-text: #041F25;
+  --color-bug: #B42318;
 }
 
 @layer base {
