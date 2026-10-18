@@ -1,6 +1,6 @@
 const NS = 'http://www.w3.org/2000/svg';
 
-const icon = (viewBox, fillColor, body, cls = 'size-6 m-2') =>
+const icon = (viewBox, fillColor, body, cls = 'size-6') =>
     `<svg xmlns="${NS}" viewBox="${viewBox}" fill="${fillColor}" class="${cls}" >${body}</svg>`;
 
 export const ICONS = {
