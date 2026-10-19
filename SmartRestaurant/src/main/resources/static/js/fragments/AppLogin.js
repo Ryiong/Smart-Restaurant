@@ -17,7 +17,7 @@ class AppLogin extends HTMLElement {
               <div id="login-form__pw" class="relative">
                 <hidden-input name="Password" placeholder="Nhập mật khẩu" class="mb-1.5 text-right"></hidden-input>
               </div>
-              <div class="mb-1.5">
+              <div class="mb-1.5 text-right">
                 <a id="login-form-pw__link" href="/src/main/resources/templates/auth/reset.html" class="font-medium text-primary-600 rounded-sm no-underline hover:underline hover:underline-offset-3">Forgot password?</a>
               </div>
               <p id="login-form-pw__error" data-error="" class="flex items-center gap-1.5 mt-1.5 mb-1.5 text-bug font-medium empty:hidden"></p>
