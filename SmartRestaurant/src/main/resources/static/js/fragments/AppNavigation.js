@@ -2,14 +2,14 @@ import { ICONS, LOGO } from '../icon.js';
 
 const NAV = [
     { href: '/src/main/resources/templates/admin/index.html', name: 'Tổng quan', icon: 'dashboard' },
-    { href: '#', name: 'Bàn $ Khu vực', icon: 'table' },
+    { href: '/src/main/resources/templates/admin/area.html', name: 'Bàn & Khu vực', icon: 'table' },
     { href: '#', name: 'Thực đơn', icon: 'menu' },
     { href: '#', name: 'Kho nguyên liệu', icon: 'storage' },
     { href: '#', name: 'Cài đặt', icon: 'setting' },
 
 ];
 
-const LINK_BASE = 'w-full flex items-center justify-center rounded-lg hover:bg-primary-50 transition-all mt-5 p-2 cursor-pointer';
+const LINK_BASE = 'w-full flex items-center justify-center rounded-lg hover:bg-primary-50 transition-all cursor-pointer';
 const LINK_ACTIVE = 'bg-primary-100 text-accent-900';
 const LINK_IDLE = 'text-support-900';
 
@@ -23,7 +23,7 @@ class AppNavigation extends HTMLElement {
             return `
         <li class="${LINK_BASE} ${active ? LINK_ACTIVE : LINK_IDLE}">
           <a href="${n.href}" title="${n.name}" aria-label="${n.name}"
-             ${active ? 'aria-current="page"' : ''}>
+             ${active ? 'aria-current="page"' : ''} class="p-2.5">
             ${ICONS[n.icon]}
           </a>
         </li>`;
