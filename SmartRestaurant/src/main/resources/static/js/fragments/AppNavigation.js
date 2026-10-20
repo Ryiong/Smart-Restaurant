@@ -1,7 +1,7 @@
 import { ICONS, LOGO } from '../icon.js';
 
 const NAV = [
-    { href: '/src/main/resources/templates/index.html', name: 'Tổng quan', icon: 'dashboard' },
+    { href: '/src/main/resources/templates/admin/index.html', name: 'Tổng quan', icon: 'dashboard' },
     { href: '#', name: 'Bàn $ Khu vực', icon: 'table' },
     { href: '#', name: 'Thực đơn', icon: 'menu' },
     { href: '#', name: 'Kho nguyên liệu', icon: 'storage' },
@@ -15,7 +15,7 @@ const LINK_IDLE = 'text-support-900';
 
 class AppNavigation extends HTMLElement {
     connectedCallback() {
-        this.classList.add('block', 'fixed', 'top-0', 'left-0', 'h-screen', 'w-min', 'z-50');
+        this.classList.add('block', 'fixed', 'top-0', 'left-0', 'h-screen', 'w-min', 'z-50', 'bg-white');
         const current = location.pathname;
 
         const items = NAV.map(n => {
@@ -30,7 +30,7 @@ class AppNavigation extends HTMLElement {
         }).join('');
 
         this.innerHTML = `
-            <nav id="app-navigation" class="h-full bg-neutral-100 ">
+            <nav id="app-navigation" class="h-full shadow-[0_4px_8px_var(--color-secondary-100)]">
                 <div id="navigation__header" class="w-15 h-15 p-2 pt-4 m-auto text-primary">
                     <div class="mx-auto">${LOGO}</div>
                 </div>

@@ -24,7 +24,7 @@ class RevenueChart extends HTMLElement {
         if (this.dataset.ready) return;
         this.dataset.ready = '1';
 
-        this.classList.add('mt-5', 'mb-5')
+        this.classList.add('mb-8')
         this.render();
     }
 
