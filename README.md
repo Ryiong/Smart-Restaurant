@@ -13,7 +13,6 @@ Bộ giao diện được xây dựng bằng **Web Components thuần (Custom El
 10. [Thẻ thống kê `<stat-ring>`](#10-thẻ-thống-kê-stat-ring)
 11. [Trang xác thực: login / register / reset](#11-trang-xác-thực)
 12. [File gom import (`AppArea`, `AppIndex`)](#12-file-gom-import)
-13. [Trang mẫu `design.js`](#13-trang-mẫu-designjs)
 ##1. Cấu trúc thư mục
 ```
 js/
@@ -347,14 +346,5 @@ Bố cục trang quản trị gợi ý (thanh điều hướng `fixed` nên ch�
     <revenue-chart month="2026-10" title="Doanh thu" unit="nghìn đồng"></revenue-chart>
   </main>
 </body>
-```
- 
-## 13. Trang mẫu `design.js`
- 
-`<design-app>` là trang tham khảo hiển thị: các cấp tiêu đề `h1–h5`, toàn bộ icon (kèm tên), `<app-navigation>` và các biến thể thuộc tính của `<app-header>`. Mở trang này để xem nhanh giao diện, và **thêm demo mới vào đây mỗi khi tạo thành phần mới**.
- 
-```html
-<script type="module" src="./js/design/design.js"></script>
-<design-app></design-app>
 ```
  
