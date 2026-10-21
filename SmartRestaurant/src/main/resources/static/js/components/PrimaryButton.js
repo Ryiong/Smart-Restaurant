@@ -20,7 +20,6 @@ class PrimaryButton extends HTMLElement {
             if (this.hasAttribute('disabled')) { e.stopImmediatePropagation(); e.preventDefault(); }
         }, true);
 
-
         this.render();
     }
 
@@ -36,8 +35,6 @@ class PrimaryButton extends HTMLElement {
         const icon = ICONS[this.getAttribute('icon')] ?? '';
         const type = this.getAttribute('type') ?? 'button'; 
         const variant = VARIANTS[this.getAttribute('variant')] ?? VARIANTS.primary;
-
-        const noIcon = icon === '';
 
         this.classList.add('inline-block');
         this.innerHTML = `

@@ -20,6 +20,7 @@ class AppNavigation extends HTMLElement {
 
         const items = NAV.map(n => {
             const active = current === n.href;
+            if (active) document.title = n.name;
             return `
         <li class="${LINK_BASE} ${active ? LINK_ACTIVE : LINK_IDLE}">
           <a href="${n.href}" title="${n.name}" aria-label="${n.name}"
