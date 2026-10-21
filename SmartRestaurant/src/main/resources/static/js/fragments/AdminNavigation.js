@@ -45,7 +45,7 @@ class AppNavigation extends HTMLElement {
                         </ul>
                     </div>
                     <div id="navigation__footer" class="flex items-center justify-center m-3">
-                    <button onclick="console.log('Logout press')" id="navigation__footer-button" class="w-13 h-15 text-primary-600 bg-primary-200 rounded-lg flex items-center justify-center hover:bg-primary-400 hover:text-white hover:scale-90 transition-all cursor-pointer">
+                    <button id="navigation__footer-button" class="w-13 h-15 text-primary-600 bg-primary-200 rounded-lg flex items-center justify-center hover:bg-primary-400 hover:text-white hover:scale-90 transition-all cursor-pointer">
                         ${ICONS.logout}
                     </button>
                 </div>
@@ -53,6 +53,16 @@ class AppNavigation extends HTMLElement {
                 
             </nav>
         `;
+
+        this.logoutBtn = this.querySelector('#navigation__footer-button');
+
+        this.logoutBtn.addEventListener('click', e => this.onClick(e));
+    }
+
+    async onClick(e) {
+        e.preventDefault();
+
+        location.pathname = '/src/main/resources/templates/auth/login.html';
     }
 }
 
