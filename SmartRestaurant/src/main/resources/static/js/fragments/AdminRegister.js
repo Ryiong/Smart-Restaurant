@@ -18,9 +18,9 @@ class AppRegister extends HTMLElement {
             </hidden-field>
             
             <p id="login-form__error" data-error="" class="flex items-center gap-1.5 mt-1.5 mb-.5 text-bug font-medium empty:hidden"></p>
-          <button id="login-form__submit" type="submit" class="w-full min-h-12.5 border rounded-xl bg-primary-700 text-white font-bold cursor-pointer shadow-[0_8px_20px_-8px_rgba(20,83,45,.6)] hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-700"">Đăng ký</button>
+          <button id="login-form__submit" type="submit" class="w-full min-h-12.5 border rounded-xl bg-primary-700 text-white font-bold cursor-pointer shadow-[0_8px_20px_-8px_rgba(20,83,45,.6)] hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-700">Đăng ký</button>
           <div id="login-form__live" role="status" aria-live="polite" data-live=""></div>
-          <p id="login-form__foot" class="mt-6 text-text text-center">Đã có tài khoản <a id="login-form__link" href="/src/main/resources/templates/auth/login.html" class="text-primary-600 font-medium no-underline hover:underline hover:underline-offset- rounded-sm">ĐĂNG NHẬP</a></p>
+          <p id="login-form__foot" class="mt-6 text-text text-center">Đã có tài khoản <a id="login-form__link" href="/src/main/resources/templates/auth/login.html" class="text-primary-600 font-medium no-underline hover:underline hover:underline-offset-3 rounded-sm">ĐĂNG NHẬP</a></p>
         </form>
       `;
     this.form = this.querySelector('#login-form');

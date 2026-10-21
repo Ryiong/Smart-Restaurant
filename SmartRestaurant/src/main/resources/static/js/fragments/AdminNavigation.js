@@ -15,6 +15,9 @@ const LINK_IDLE = 'text-support-900';
 
 class AppNavigation extends HTMLElement {
     connectedCallback() {
+        if (this.dataset.ready) return;
+        this.dataset.ready = '1';
+
         this.classList.add('block', 'fixed', 'top-0', 'left-0', 'h-screen', 'w-min', 'z-50', 'bg-white');
         const current = location.pathname;
 
@@ -42,7 +45,7 @@ class AppNavigation extends HTMLElement {
                         </ul>
                     </div>
                     <div id="navigation__footer" class="flex items-center justify-center m-3">
-                    <button id="navigation__footer-button" class="w-13 h-15 text-primary-600 bg-primary-200 rounded-lg flex items-center justify-center hover:bg-primary-400 hover:text-white hover:scale-90 transition-all cursor-pointer">
+                    <button onclick="console.log('Logout press')" id="navigation__footer-button" class="w-13 h-15 text-primary-600 bg-primary-200 rounded-lg flex items-center justify-center hover:bg-primary-400 hover:text-white hover:scale-90 transition-all cursor-pointer">
                         ${ICONS.logout}
                     </button>
                 </div>

@@ -1,4 +1,4 @@
-import './AppNavigation.js';
+import './AdminNavigation.js';
 import '../components/RevenueChart.js';
 import '../components/StatRing.js';
-import './AppHeader.js';
+import './AdminHeader.js';

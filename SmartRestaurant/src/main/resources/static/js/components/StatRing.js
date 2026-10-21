@@ -8,7 +8,7 @@ const R = 40; //Bán kính vòng tròn
 const C = 2 * Math.PI * R;
 
 class StatRing extends HTMLElement {
-    static observedAttributes = ['label', 'value', 'total', 'htotal', 'note', 'icon'];
+    static observedAttributes = ['label', 'value', 'total', 'note', 'icon'];
 
     connectedCallback() {
         if (this.dataset.ready) return;

@@ -6,7 +6,7 @@ const pad = n => String(n).padStart(2, '0');
 const key = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 class RevenueChart extends HTMLElement {
-    static observedAttributes = ['month', 'days', 'title', 'unit'];
+    static observedAttributes = ['month', 'days', 'title', 'unit', 'href'];
     #data = [];
 
     get data() { return this.#data }
