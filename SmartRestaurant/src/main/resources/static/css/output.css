@@ -48,6 +48,8 @@
     --color-secondary-600: #6FA784;
     --color-secondary-700: #5A886C;
     --color-secondary-800: #436550;
+    --color-accent-50: #C3D3D2;
+    --color-accent-100: #9BB6B4;
     --color-accent-900: #021917;
     --color-support-50: #F5F7F7;
     --color-support-600: #B7BEC0;
@@ -331,6 +333,9 @@
   .h-44 {
     height: calc(var(--spacing) * 44);
   }
+  .h-100 {
+    height: calc(var(--spacing) * 100);
+  }
   .h-full {
     height: 100%;
   }
@@ -364,6 +369,9 @@
   .w-15 {
     width: calc(var(--spacing) * 15);
   }
+  .w-30 {
+    width: calc(var(--spacing) * 30);
+  }
   .w-full {
     width: 100%;
   }
@@ -391,8 +399,18 @@
   .cursor-pointer {
     cursor: pointer;
   }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thumb-accent-50 {
+    --tw-scrollbar-thumb: var(--color-accent-50);
+    scrollbar-color: var(--tw-scrollbar-thumb) var(--tw-scrollbar-track);
+  }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-wrap {
+    flex-wrap: wrap;
   }
   .place-items-center {
     place-items: center;
@@ -412,11 +430,17 @@
   .justify-center {
     justify-content: center;
   }
+  .justify-end-safe {
+    justify-content: safe flex-end;
+  }
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
+  }
+  .gap-2\.5 {
+    gap: calc(var(--spacing) * 2.5);
   }
   .gap-3 {
     gap: calc(var(--spacing) * 3);
@@ -427,17 +451,26 @@
   .gap-5 {
     gap: calc(var(--spacing) * 5);
   }
+  .justify-self-start {
+    justify-self: flex-start;
+  }
+  .overflow-x-hidden {
+    overflow-x: hidden;
+  }
   .overflow-y-auto {
     overflow-y: auto;
+  }
+  .overflow-y-scroll {
+    overflow-y: scroll;
+  }
+  .scroll-smooth {
+    scroll-behavior: smooth;
   }
   .rounded-2xl {
     border-radius: var(--radius-2xl);
   }
   .rounded-3xl {
     border-radius: var(--radius-3xl);
-  }
-  .rounded-full {
-    border-radius: calc(infinity * 1px);
   }
   .rounded-lg {
     border-radius: var(--radius-lg);
@@ -838,6 +871,16 @@
     display: none;
   }
 }
+@property --tw-scrollbar-thumb {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+@property --tw-scrollbar-track {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -939,6 +982,8 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-scrollbar-thumb: #0000;
+      --tw-scrollbar-track: #0000;
       --tw-border-style: solid;
       --tw-font-weight: initial;
       --tw-shadow: 0 0 #0000;
