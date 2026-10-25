@@ -16,25 +16,14 @@
         <app-header title="Tổng quan" data-title="Tổng quản cửa hàng và doanh thu gần đây" username="Nguyễn Văn A" user-role="Chủ cửa hàng"></app-header>
         <div id="app-containter">
             <div class="flex gap-5 mb-8">
+                <stat-ring id="stat-revenue-today" label="Doanh thu trong ngày" value="0" format="money" note="Chưa có hoá đơn hôm nay" icon="money"></stat-ring>
                 <stat-ring label="Số bàn" value="27" total="50" note="4 bàn tạm ngưng" icon="table"></stat-ring>
                 <stat-ring label="Món đang bán" value="25" note="4 món tạm ngưng" icon="food"></stat-ring>
             </div>
             <revenue-chart id="revenue-chart-days" title="Doanh thu 14 ngày gần nhất" unit="triệu VNĐ" days="14"></revenue-chart>
-            <revenue-chart id="revenue-chart-mounth" title="Doanh thu tháng 10" unit="triệu VNĐ" month="2026-10"></revenue-chart>
+            <revenue-chart id="revenue-chart-month" title="Doanh thu tháng" unit="triệu VNĐ" month="2026-10"></revenue-chart>
         </div>
     </div>
-    <script>
-        const chart = document.querySelector('#revenue-chart-days');
-        const chartM = document.querySelector('#revenue-chart-mounth');
-
-        chart.data = [
-            { date: '2026-10-08', value: 2.2 },
-            { date: '2026-10-07', value: 3.1 },
-            { date: '2026-10-06', value: 7.5 },
-        ];
-
-        chartM.data = chart.data;
-    </script>
 </body>
 
 </html>
