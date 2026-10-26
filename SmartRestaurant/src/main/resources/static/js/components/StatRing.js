@@ -1,14 +1,11 @@
 import { ICONS } from '../icon.js';
-
-const esc = s => String(s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
-);
+import { esc } from '../utils/format.js';
 
 const R = 40; //Bán kính vòng tròn
 const C = 2 * Math.PI * R;
 
 class StatRing extends HTMLElement {
-    static observedAttributes = ['label', 'value', 'total', 'note', 'icon'];
+    static observedAttributes = ['label', 'value', 'total', 'note', 'icon', 'format'];
 
     connectedCallback() {
         if (this.dataset.ready) return;
@@ -26,17 +23,19 @@ class StatRing extends HTMLElement {
         const total = Number(this.getAttribute('total')) || 0;
         const note = this.getAttribute('note') ?? '';
         const icon = ICONS[this.getAttribute('icon')] ?? '';
+        const isMoney = this.getAttribute('format') === 'money';
 
         const hasTotal = total > 0;
         const ratio = total > 0 ? Math.min(value / total, 1) : 1;
         const offset = C * (1 - ratio);
+        const shown = isMoney ? `${Math.round(value).toLocaleString('vi-VN')} đ` : hasTotal ? `${value}/${total}` : value;
 
         this.classList.add('block');
         this.innerHTML = `
         <div class="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 shadow-md">
             <div>
                 <p class="text-sm font-bold text-primary-600">${esc(label)}</p>
-                <p class="text-3xl font-bold text-text">${hasTotal ? `${value}/${total}` : value}</p>
+                <p class="${isMoney ? 'text-2xl' : 'text-3xl'} font-bold text-text">${esc(shown)}</p>
                 <p class="text-xs font-medium text-support-900">${esc(note)}</p>
             </div>
 
