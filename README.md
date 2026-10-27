@@ -1,5 +1,964 @@
+# Smart Restaurant — Hướng dẫn chạy với Spring Boot
+
+> Phần này ưu tiên hướng dẫn **kết nối Frontend với Spring Boot**.  
+> Frontend hiện sử dụng Web Components + Tailwind CSS và có thể chạy với 3 nguồn dữ liệu: `local`, `mockapi`, `spring`.
+
+## 13. Kiến trúc tổng quan
+
+Luồng dữ liệu khi chạy thật:
+
+```text
+HTML / Web Components
+        │
+        ▼
+AreaManager / AdminIndex
+        │
+        ├── areaService
+        └── revenueService
+                │
+                ▼
+          HttpClient.js
+                │
+                ▼
+        Spring Boot REST API
+                │
+                ▼
+          Service / JPA
+                │
+                ▼
+             MySQL
+```
+
+Điểm quan trọng: **UI không cần biết dữ liệu đến từ đâu**. Các component gọi service; service quyết định lấy dữ liệu từ `localStorage`, MockAPI hay Spring Boot.
+
+Nguồn dữ liệu được chọn tại:
+
+```text
+src/main/resources/static/js/config.js
+```
+
+```js
+export const API_MODE = 'spring';
+```
+
+Các chế độ:
+
+| `API_MODE` | Nguồn dữ liệu | Mục đích |
+|---|---|---|
+| `local` | `localStorage` | Thiết kế / test giao diện |
+| `mockapi` | mockapi.io | Demo nhiều máy |
+| `spring` | Spring Boot REST API | Chạy ứng dụng thật |
+
+Theo tài liệu chuyển backend, khi đổi sang `spring`, phần giao diện `AreaManager`, `AdminIndex`... không cần thay đổi; chúng tiếp tục gọi `areaService` và `revenueService`.
+
+## 14. Cấu trúc project Spring Boot
+
+Cấu trúc hiện tại trong source được tổ chức theo hướng:
+
+```text
+src/
+└── main/
+    ├── java/
+    │   └── ...                    # Backend Spring Boot
+    │
+    └── resources/
+        ├── application.properties
+        ├── application-dev.properties
+        │
+        ├── static/
+        │   ├── css/
+        │   │   ├── input.css
+        │   │   └── output.css
+        │   │
+        │   ├── images/
+        │   │   └── ...
+        │   │
+        │   └── js/
+        │       ├── components/
+        │       ├── fragments/
+        │       ├── services/
+        │       ├── utils/
+        │       ├── config.js
+        │       └── icon.js
+        │
+        └── templates/
+            ├── admin/
+            │   ├── index.html
+            │   └── area.html
+            │
+            └── auth/
+                ├── login.html
+                ├── register.html
+                └── reset.html
+```
+
+> Lưu ý: source archive được cung cấp cho phần tài liệu này hiện thể hiện đầy đủ `resources/`, nhưng không chứa các file `.java` trong `src/main/java/`. Vì vậy README chỉ mô tả **contract/API mà backend cần triển khai**, không giả định rằng các controller/service Java đã có sẵn.
+
+## 15. `static` và `templates` trong Spring Boot
+
+### 15.1. `static/`
+
+Các file trong:
+
+```text
+src/main/resources/static/
+```
+
+được Spring Boot phục vụ trực tiếp từ root URL.
+
+Ví dụ:
+
+```text
+src/main/resources/static/css/output.css
+```
+
+truy cập bằng:
+
+```text
+/css/output.css
+```
+
+và:
+
+```text
+src/main/resources/static/js/fragments/AdminArea.js
+```
+
+truy cập bằng:
+
+```text
+/js/fragments/AdminArea.js
+```
+
+**Không viết:**
+
+```text
+/static/css/output.css
+```
+
+**và không viết:**
+
+```text
+/src/main/resources/static/css/output.css
+```
+
+### 15.2. `templates/`
+
+Các file:
+
+```text
+src/main/resources/templates/
+```
+
+không được Spring Boot tự phục vụ như file tĩnh.
+
+Nếu dùng Thymeleaf, controller sẽ trả về tên view:
+
+```java
+@Controller
+public class PageController {
+
+    @GetMapping("/admin/area")
+    public String area() {
+        return "admin/area";
+    }
+}
+```
+
+Spring Boot sẽ tìm:
+
+```text
+templates/admin/area.html
+```
+
+### 15.3. Khuyến nghị cho project hiện tại
+
+Nếu muốn tiếp tục dùng HTML + Web Components thuần, có thể giữ HTML trong `templates/` và dùng Controller để mở trang.
+
+Nếu muốn đơn giản hóa việc phục vụ HTML, có thể chuyển các trang HTML sang:
+
+```text
+static/admin/
+static/auth/
+```
+
+và truy cập trực tiếp bằng URL.
+
+**Không nên trộn hai cách một cách tùy tiện.** Chọn một chiến lược routing cho toàn bộ frontend.
+
+## 16. Sửa đường dẫn Frontend khi chạy Spring Boot
+
+HTML hiện tại được viết theo kiểu dùng Live Server, ví dụ:
+
+```html
+<link rel="stylesheet" href="../../static/css/output.css">
+<script type="module" src="../../static/js/fragments/AdminArea.js"></script>
+```
+
+Khi chạy Spring Boot, nên đổi thành:
+
+```html
+<link rel="stylesheet" href="/css/output.css">
+<script type="module" src="/js/fragments/AdminArea.js"></script>
+```
+
+Ví dụ:
+
+```html
+<head>
+    <link rel="stylesheet" href="/css/output.css">
+    <script type="module" src="/js/fragments/AdminArea.js"></script>
+</head>
+```
+
+Tương tự với:
+
+```js
+href: '/admin/index'
+```
+
+thay vì trỏ trực tiếp vào:
+
+```text
+/src/main/resources/templates/...
+```
+
+### Quy tắc cần nhớ
+
+```text
+resources/static/css/output.css
+        ↓
+/css/output.css
+
+resources/static/js/...
+        ↓
+/js/...
+
+resources/templates/admin/index.html
+        ↓
+/admin/index       ← nếu dùng Controller + Thymeleaf
+```
+
+## 17. Kết nối MySQL
+
+Application hiện được cấu hình theo database:
+
+```text
+smart_restaurant
+```
+
+Ví dụ cấu hình:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/smart_restaurant?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8
+spring.datasource.username=root
+spring.datasource.password=YOUR_DATABASE_PASSWORD
+
+spring.jpa.hibernate.ddl-auto=update
+```
+
+Sau khi MySQL đang chạy, Spring Boot sẽ kết nối tới:
+
+```text
+localhost:3306/smart_restaurant
+```
+
+### Khuyến nghị
+
+Trong quá trình phát triển có thể dùng:
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+Nhưng khi deploy production cần quản lý schema/database migration cẩn thận, không nên phụ thuộc hoàn toàn vào `ddl-auto=update`.
+
+## 18. API contract giữa Frontend và Spring Boot
+
+Frontend cần các endpoint sau.
+
+### Khu vực và bàn
+
+| Frontend service | Method | Endpoint |
+|---|---:|---|
+| `listAreas` | GET | `/api/areas` |
+| `listMenu` | GET | `/api/menu-items` |
+| `saveArea` mới | POST | `/api/areas` |
+| `saveArea` sửa | PUT | `/api/areas/{id}` |
+| `deleteArea` | DELETE | `/api/areas/{id}` |
+| `setAreaActive` | PATCH | `/api/areas/{id}/active` |
+| `openTable` | POST | `/api/tables/{id}/open` |
+| `addOrder` | POST | `/api/tables/{id}/orders` |
+| `requestPayment` | POST | `/api/tables/{id}/request-payment` |
+| `cancelPayment` | POST | `/api/tables/{id}/cancel-payment` |
+| `checkoutTable` | POST | `/api/tables/{id}/checkout` |
+| `cancelReservation` | POST | `/api/tables/{id}/cancel-reservation` |
+| `moveTable` | POST | `/api/tables/{id}/move` |
+| `mergeTables` | POST | `/api/tables/{id}/merge` |
+
+### Doanh thu
+
+```text
+GET /api/revenue/today
+GET /api/revenue/daily?days=N
+```
+
+`/api/revenue/today` trả về:
+
+```json
+{
+  "date": "2026-10-27",
+  "total": 395000,
+  "count": 1,
+  "cash": 395000,
+  "transfer": 0,
+  "transactions": []
+}
+```
+
+`/api/revenue/daily?days=14` trả về danh sách ngày theo thứ tự tăng dần và phải có cả những ngày không phát sinh hóa đơn với `total = 0`.
+
+## 19. Quy ước JSON quan trọng
+
+### ID
+
+Frontend cần `id` dưới dạng **String**:
+
+```json
+{
+  "id": "11"
+}
+```
+
+Không nên trả:
+
+```json
+{
+  "id": 11
+}
+```
+
+vì frontend có các phép so sánh với `dataset.id` dạng chuỗi.
+
+Nếu database dùng:
+
+```java
+Long id;
+```
+
+hãy chuyển thành String trong DTO:
+
+```java
+String.valueOf(entity.getId())
+```
+
+### Thời gian
+
+Dùng epoch milliseconds:
+
+```json
+{
+  "startedAt": 1761300000000
+}
+```
+
+Các trường liên quan:
+
+```text
+startedAt
+reservedAt
+reservedUntil
+Tx.at
+```
+
+### Tiền
+
+Tiền được biểu diễn bằng số nguyên VNĐ:
+
+```json
+{
+  "price": 95000,
+  "total": 395000
+}
+```
+
+Không dùng `double` cho tiền.
+
+### Trạng thái bàn
+
+Chỉ sử dụng:
+
+```text
+empty
+serving
+paying
+reserved
+merged
+```
+
+## 20. Model dữ liệu chính
+
+### Area
+
+```json
+{
+  "id": "1",
+  "name": "Sân vườn",
+  "active": true,
+  "tables": []
+}
+```
+
+### Table
+
+```json
+{
+  "id": "11",
+  "name": "Bàn A02",
+  "capacity": 4,
+  "status": "serving",
+  "guests": 2,
+  "startedAt": 1761300000000,
+  "reservedAt": null,
+  "reservedUntil": null,
+  "orders": [
+    {
+      "name": "Phở bò",
+      "price": 95000,
+      "qty": 2
+    }
+  ],
+  "mergedInto": null,
+  "mergedIds": []
+}
+```
+
+### Transaction / Invoice
+
+```json
+{
+  "id": "501",
+  "at": 1761300000000,
+  "tableName": "Bàn A02",
+  "areaName": "Sân vườn",
+  "method": "cash",
+  "total": 395000
+}
+```
+
+## 21. Luật nghiệp vụ phải nằm ở Backend
+
+Khi chuyển sang Spring Boot, không nên chỉ biến backend thành một API CRUD đơn giản.
+
+Các luật nghiệp vụ phải được kiểm tra tại backend.
+
+Ví dụ:
+
+### Mở bàn
+
+```text
+Bàn phải empty hoặc reserved.
+guests >= 1.
+guests <= sức chứa.
+```
+
+Sau khi mở:
+
+```text
+status = serving
+startedAt = now
+orders = []
+```
+
+### Đặt món
+
+```text
+Bàn phải serving.
+```
+
+Nếu cùng tên và cùng giá thì cộng `qty`.
+
+### Yêu cầu thanh toán
+
+```text
+Bàn phải serving.
+Bàn phải có ít nhất một món.
+```
+
+Sau đó:
+
+```text
+status = paying
+```
+
+### Thanh toán
+
+```text
+Bàn phải paying.
+```
+
+Nếu thanh toán tiền mặt:
+
+```text
+received >= total
+```
+
+Quá trình thanh toán cần nằm trong **một database transaction**:
+
+```text
+Tạo hóa đơn
+    +
+Trả bàn về empty
+    +
+Trả các bàn đã gộp về empty
+```
+
+Nếu một bước lỗi thì toàn bộ thao tác phải rollback.
+
+### Chuyển bàn
+
+```text
+Nguồn: serving hoặc paying
+Đích: empty
+```
+
+### Gộp bàn
+
+```text
+Nguồn: serving
+Đích: empty hoặc serving
+Không được gộp với chính nó
+```
+
+Các luật chi tiết được mô tả trong `SPRING_BOOT_GUIDE.md`.
+
+## 22. Cấu trúc Backend Spring Boot đề xuất
+
+Khi triển khai phần Java, nên tách theo trách nhiệm:
+
+```text
+src/main/java/.../
+├── controller/
+│   ├── AreaController.java
+│   ├── TableController.java
+│   ├── RevenueController.java
+│   └── AuthController.java
+│
+├── service/
+│   ├── AreaService.java
+│   ├── TableService.java
+│   ├── RevenueService.java
+│   └── AuthService.java
+│
+├── repository/
+│   ├── AreaRepository.java
+│   ├── DiningTableRepository.java
+│   └── InvoiceRepository.java
+│
+├── entity/
+│   ├── Area.java
+│   ├── DiningTable.java
+│   ├── Invoice.java
+│   └── ...
+│
+├── dto/
+│   ├── AreaDto.java
+│   ├── TableDto.java
+│   └── ...
+│
+├── exception/
+│   ├── BusinessException.java
+│   └── ApiExceptionHandler.java
+│
+└── config/
+    └── SecurityConfig.java
+```
+
+Luồng xử lý nên là:
+
+```text
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Database
+```
+
+Controller không nên chứa toàn bộ logic nghiệp vụ.
+
+## 23. Xử lý lỗi API
+
+Frontend đang mong đợi lỗi nghiệp vụ có dạng:
+
+```json
+{
+  "message": "Tên khu vực đã tồn tại"
+}
+```
+
+Ví dụ:
+
+```http
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
+
+```json
+{
+  "message": "Số tiền khách đưa chưa đủ"
+}
+```
+
+Có thể gom xử lý lỗi bằng:
+
+```java
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, String>> business(
+            BusinessException e) {
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(Map.of("message", e.getMessage()));
+    }
+}
+```
+
+Frontend có thể hiển thị trực tiếp `message`.
+
+## 24. Authentication
+
+Frontend hiện sử dụng:
+
+```text
+/api/auth/login
+/api/auth/reset
+```
+
+`HttpClient.js` được thiết kế để gửi:
+
+```js
+credentials: 'same-origin'
+```
+
+Do đó hướng triển khai phù hợp là backend đặt JWT/session token trong **HttpOnly cookie**.
+
+Luồng:
+
+```text
+POST /api/auth/login
+        ↓
+Spring Security xác thực
+        ↓
+Set-Cookie
+        ↓
+Browser lưu cookie
+        ↓
+Request API tiếp theo tự gửi cookie
+```
+
+Khi API trả:
+
+```text
+401 Unauthorized
+```
+
+frontend sẽ chuyển về `LOGIN_URL`.
+
+Nếu project dùng JWT trong response body thay vì cookie, phải thay đổi `HttpClient.js` để lưu token và gửi:
+
+```http
+Authorization: Bearer <token>
+```
+
+## 25. SecurityFilterChain
+
+Backend cần cho phép các tài nguyên công khai:
+
+```text
+/css/**
+/js/**
+/images/**
+/api/auth/**
+```
+
+Các API quản trị còn lại yêu cầu đăng nhập.
+
+Mô hình:
+
+```text
+Static resources ────────► permitAll
+Auth API ────────────────► permitAll
+Admin API ───────────────► authenticated
+```
+
+Cookie nên có:
+
+```text
+HttpOnly
+Secure
+SameSite=Lax
+```
+
+## 26. Chạy project
+
+### Bước 1 — Chuẩn bị MySQL
+
+Tạo database:
+
+```text
+smart_restaurant
+```
+
+hoặc để JDBC URL sử dụng:
+
+```text
+createDatabaseIfNotExist=true
+```
+
+### Bước 2 — Kiểm tra application properties
+
+Không commit mật khẩu thật vào Git.
+
+Nên dùng biến môi trường:
+
+```properties
+spring.datasource.password=${DB_PASSWORD}
+spring.mail.password=${MAIL_PASSWORD}
+jwt.secret-key=${JWT_SECRET}
+```
+
+### Bước 3 — Build Tailwind
+
+Frontend hiện có:
+
+```text
+static/css/input.css
+static/css/output.css
+```
+
+Sau khi thay đổi Tailwind source, build lại `output.css` bằng Tailwind CLI theo cấu hình của project.
+
+### Bước 4 — Chạy Spring Boot
+
+Nếu project dùng Maven:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Windows:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Nếu project dùng Gradle:
+
+```bash
+./gradlew bootRun
+```
+
+### Bước 5 — Chuyển API mode
+
+Trong:
+
+```text
+static/js/config.js
+```
+
+đặt:
+
+```js
+export const API_MODE = 'spring';
+```
+
+### Bước 6 — Kiểm tra API
+
+Có thể kiểm tra lần lượt:
+
+```text
+GET /api/areas
+GET /api/menu-items
+GET /api/revenue/today
+GET /api/revenue/daily?days=14
+```
+
+Sau đó kiểm tra các thao tác:
+
+```text
+Mở bàn
+Đặt món
+Yêu cầu thanh toán
+Thanh toán
+Chuyển bàn
+Gộp bàn
+```
+
+## 27. Checklist chuyển từ Frontend Demo → Spring Boot
+
+```text
+[ ] MySQL đang chạy
+[ ] Database smart_restaurant đã được cấu hình
+[ ] Spring Boot chạy được
+[ ] Controller đã tạo đủ endpoint
+[ ] Service chứa logic nghiệp vụ
+[ ] Repository kết nối database
+[ ] DTO trả id dưới dạng String
+[ ] Tiền dùng long/integer
+[ ] Thời gian dùng epoch milliseconds
+[ ] Status dùng đúng giá trị frontend yêu cầu
+[ ] Lỗi trả { "message": "..." }
+[ ] Checkout có @Transactional
+[ ] SecurityFilterChain đã cấu hình
+[ ] /api/auth/** được permitAll
+[ ] static resources được permitAll
+[ ] API admin yêu cầu authentication
+[ ] HttpOnly cookie/JWT hoạt động
+[ ] HTML không còn trỏ ../../static/ khi chạy Spring Boot
+[ ] API_MODE = 'spring'
+[ ] Tailwind output.css đã được build
+[ ] Không còn secret/password thật trong Git
+```
+
+## 28. Các lỗi thường gặp
+
+### `Refused to apply style ... MIME type ('text/html')`
+
+Thường xảy ra khi đang dùng Live Server và đường dẫn CSS không trỏ tới file CSS thật.
+
+Ví dụ không nên:
+
+```html
+<link rel="stylesheet"
+      href="/src/main/resources/static/css/output.css">
+```
+
+Khi chạy Spring Boot phải dùng:
+
+```html
+<link rel="stylesheet" href="/css/output.css">
+```
+
+### `404` khi import Web Component
+
+Sai:
+
+```html
+<script type="module"
+        src="../../static/js/fragments/AdminArea.js">
+</script>
+```
+
+Đúng khi chạy Spring Boot:
+
+```html
+<script type="module"
+        src="/js/fragments/AdminArea.js">
+</script>
+```
+
+### API trả `id` là number
+
+Nếu frontend có:
+
+```js
+dataset.id === table.id
+```
+
+thì:
+
+```text
+dataset.id = "11"
+table.id   = 11
+```
+
+sẽ không bằng nhau.
+
+Hãy trả:
+
+```json
+"id": "11"
+```
+
+### CORS
+
+Nếu frontend và backend chạy cùng origin bằng Spring Boot:
+
+```text
+http://localhost:8080
+```
+
+thì không cần cấu hình CORS cho trường hợp thông thường.
+
+Nếu frontend chạy riêng bằng Live Server:
+
+```text
+http://127.0.0.1:5500
+```
+
+và backend ở:
+
+```text
+http://localhost:8080
+```
+
+thì cần cấu hình CORS và cookie phù hợp. Khi chuyển sang chạy frontend trực tiếp từ Spring Boot, nên ưu tiên same-origin để đơn giản hóa authentication.
+
+## 29. Tài liệu tham chiếu
+
+- `SPRING_BOOT_GUIDE.md`: contract API, JSON model, luật nghiệp vụ và khung code Spring Boot.
+- `static/js/config.js`: chọn nguồn dữ liệu.
+- `static/js/services/`: lớp giao tiếp dữ liệu.
+- `static/js/services/HttpClient.js`: HTTP client.
+- `static/js/services/AreaService.js`: service quản lý khu vực/bàn.
+- `static/js/services/RevenueService.js`: service doanh thu.
+- `static/js/fragments/AreaManager.js`: UI quản lý khu vực/bàn.
+- `static/js/fragments/AdminIndex.js`: UI tổng quan/doanh thu.
+- `templates/`: các trang HTML khi dùng Thymeleaf/controller.
+- `static/`: CSS, JS, image được Spring Boot phục vụ trực tiếp.
+
+---
+
+# 30. Lưu ý bảo mật quan trọng
+
+File cấu hình development hiện chứa thông tin nhạy cảm như:
+
+```text
+spring.datasource.password
+spring.mail.password
+jwt.secret-key
+refresh-token.secret-key
+access-token.secret-key
+```
+
+**Không commit các giá trị thật lên Git.**
+
+Nếu các giá trị này đã từng được chia sẻ hoặc commit, cần **thu hồi/đổi secret** trước khi sử dụng production.
+
+Nên chuyển sang biến môi trường:
+
+```properties
+spring.datasource.password=${DB_PASSWORD}
+
+spring.mail.password=${MAIL_PASSWORD}
+
+jwt.secret-key=${JWT_SECRET}
+refresh-token.secret-key=${REFRESH_TOKEN_SECRET}
+access-token.secret-key=${ACCESS_TOKEN_SECRET}
+```
+
+Đồng thời thêm các file local/dev chứa secret vào `.gitignore` nếu chúng không dùng cho deployment.
+
+> `SPRING_BOOT_GUIDE.md` cũng lưu ý rằng ba JWT secret hiện đang dùng cùng một giá trị; nên sử dụng secret riêng cho từng mục đích.
+---
+
 # Hướng dẫn sử dụng thiết kế Frontend
-Bộ giao diện được xây dựng bằng **Web Components thuần (Custom Elements)** kết hợp **Tailwind CSS (V4)**, không cần framework. Mỗi thành phần là một thẻ HTML tuỳ chỉnh, chỉ cần `import` file JS tương ứng rồi dùng như một thẻ HTML bình thường.
+Bộ giao diện được xây dựng bằng **Web Components thuần (Custom Elements)** kết hợp **Tailwind CSS (V4)**, không sử dụng framework. Mỗi thành phần là một thẻ HTML tuỳ chỉnh, chỉ cần `import` file JS tương ứng rồi dùng như một thẻ HTML bình thường.
 ## Mục lục
 1. [Cấu trúc thư mục](#1-cấu-trúc-thư-mục)
 2. [Quy ước chung](#2-quy-ước-chung)
@@ -53,7 +1012,7 @@ js/
 
 ## 3. Màu sắc & kiểu chữ
  
-Dự án dùng các token màu của Tailwind (khai báo ở file CSS theme của bạn qua biến `--color-*`):
+Dự án dùng các token màu của Tailwind (khai báo ở file CSS input qua biến `--color-*`):
  
 | Token | Dùng cho |
 |---|---|
@@ -63,16 +1022,14 @@ Dự án dùng các token màu của Tailwind (khai báo ở file CSS theme củ
 | `accent-900` | Chữ/icon của mục điều hướng đang chọn |
 | `text` | Màu chữ chính |
 | `bug` | Màu thông báo lỗi |
- 
-Các tiêu đề `h1 … h5` và đoạn văn `p` được định kiểu toàn cục; xem mẫu trực tiếp trong `design.js`.
- 
+
 ## 4. Icon (`icon.js`)
  
-File xuất ra hai thứ: `ICONS` (object chứa các icon dạng chuỗi SVG) và `LOGO`.
+File icon.js sẽ cho các đơn vị gồm: `ICONS` (object chứa các icon dạng chuỗi SVG) và `LOGO`.
 
 ### Danh sách icon
  
-`dashboard`, `table`, `menu`, `storage`, `user_setting`, `role`, `calendar`, `setting`, `logout`, `eye`, `eyeOff`, `food`, `edit`, `delete`, `add`
+`dashboard`, `table`, `menu`, `storage`, `user_setting`, `role`, `calendar`, `setting`, `logout`, `eye`, `eyeOff`, `food`, `edit`, `delete`, `add`,...
 
 ### Cách dùng
  
@@ -82,9 +1039,10 @@ import { ICONS, LOGO } from './icon.js';
 element.innerHTML = `<button>${ICONS.edit} Sửa</button>`;
 ```
 - Icon dùng `currentColor`, nên **đổi màu bằng class chữ** của thẻ cha, ví dụ `text-primary-600`.
-- Kích thước mặc định: `size-6`. Riêng `edit`, `delete`, `add` là `size-5`; `logout` là `w-5 h-10`.
+- Kích thước mặc định: `size-6`. Riêng icon cho button là `size-5`; `logout` là `w-5 h-10`.
 - Icon `food` dùng biến màu `--color-secondary-500/600/800` nên cần theme có các biến này.
 - `LOGO` là SVG logo (màu `#064943`), dùng trong `<app-navigation>`.
+
 ### Thêm icon mới
  
 Thêm một mục vào `ICONS` bằng hàm `icon(viewBox, fillColor, body, cls)`:
@@ -129,11 +1087,7 @@ const NAV = [
 > Đổi `NAV` cũng là cách đổi tiêu đề tab của trang.
  
 Mục đang chọn dùng class `LINK_ACTIVE`, các mục còn lại dùng `LINK_IDLE` (chỉnh ở đầu file).
- 
-**Hiển thị trong trang mẫu/demo:** vì thẻ mặc định là `fixed`, để nhúng vào giữa trang hãy ghi đè class, ví dụ `<app-navigation class="relative" style="height:min-content;">`.
- 
-Nút đăng xuất (`#navigation__footer-button`) hiện **chưa gắn sự kiện**; hãy tự thêm xử lý đăng xuất.
- 
+
 ## 6. Tiêu đề trang `<app-header>`
  
 Thanh đầu trang: tiêu đề bên trái, thông tin người dùng bên phải.
@@ -347,4 +1301,4 @@ Bố cục trang quản trị gợi ý (thanh điều hướng `fixed` nên ch�
   </main>
 </body>
 ```
- 
+
