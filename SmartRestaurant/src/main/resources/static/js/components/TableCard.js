@@ -13,7 +13,7 @@ class TableCard extends HTMLElement {
     ];
 
     connectedCallback() {
-        this.classList.add('block');
+        this.classList.add('block', 'cursor-pointer');
         if (!this._bound) {
             this._bound = true;
             this.addEventListener('keydown', e => {
@@ -47,7 +47,7 @@ class TableCard extends HTMLElement {
         const look = variant === 'view' ? st.card : 'border-primary-200 bg-white';
         const sel = selected ? 'ring-4 ring-primary-300 border-primary-700' : '';
         const a11y = interactive
-            ? `role="button" tabindex="${disabled ? -1 : 0}: aria-presses="${selected}" aria-disabled="${disabled}"`
+            ? `role="button" tabindex="${disabled ? -1 : 0}" aria-pressed="${selected}" aria-disabled="${disabled}"`
             : '';
         if (note && disabled) {
             this.title = note;
