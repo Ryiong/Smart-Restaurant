@@ -3,7 +3,7 @@
 > Phần này ưu tiên hướng dẫn **kết nối Frontend với Spring Boot**.  
 > Frontend hiện sử dụng Web Components + Tailwind CSS và có thể chạy với 3 nguồn dữ liệu: `local`, `mockapi`, `spring`.
 
-## 13. Kiến trúc tổng quan
+## 1. Kiến trúc tổng quan
 
 Luồng dữ liệu khi chạy thật:
 
@@ -13,8 +13,8 @@ HTML / Web Components
         ▼
 AreaManager / AdminIndex
         │
-        ├── areaService
-        └── revenueService
+        ├── AreaService
+        └── RevenueService
                 │
                 ▼
           HttpClient.js
@@ -29,7 +29,7 @@ AreaManager / AdminIndex
              MySQL
 ```
 
-Điểm quan trọng: **UI không cần biết dữ liệu đến từ đâu**. Các component gọi service; service quyết định lấy dữ liệu từ `localStorage`, MockAPI hay Spring Boot.
+Điểm quan trọng: Các component gọi service; service quyết định lấy dữ liệu từ `localStorage`, MockAPI hay Spring Boot.
 
 Nguồn dữ liệu được chọn tại:
 
@@ -46,12 +46,10 @@ Các chế độ:
 | `API_MODE` | Nguồn dữ liệu | Mục đích |
 |---|---|---|
 | `local` | `localStorage` | Thiết kế / test giao diện |
-| `mockapi` | mockapi.io | Demo nhiều máy |
-| `spring` | Spring Boot REST API | Chạy ứng dụng thật |
+| `mockapi` | mockapi.io | Demo |
+| `spring` | Spring Boot REST API | Dự án thật |
 
-Theo tài liệu chuyển backend, khi đổi sang `spring`, phần giao diện `AreaManager`, `AdminIndex`... không cần thay đổi; chúng tiếp tục gọi `areaService` và `revenueService`.
-
-## 14. Cấu trúc project Spring Boot
+## 2. Cấu trúc project Spring Boot
 
 Cấu trúc hiện tại trong source được tổ chức theo hướng:
 
@@ -92,101 +90,7 @@ src/
                 └── reset.html
 ```
 
-> Lưu ý: source archive được cung cấp cho phần tài liệu này hiện thể hiện đầy đủ `resources/`, nhưng không chứa các file `.java` trong `src/main/java/`. Vì vậy README chỉ mô tả **contract/API mà backend cần triển khai**, không giả định rằng các controller/service Java đã có sẵn.
-
-## 15. `static` và `templates` trong Spring Boot
-
-### 15.1. `static/`
-
-Các file trong:
-
-```text
-src/main/resources/static/
-```
-
-được Spring Boot phục vụ trực tiếp từ root URL.
-
-Ví dụ:
-
-```text
-src/main/resources/static/css/output.css
-```
-
-truy cập bằng:
-
-```text
-/css/output.css
-```
-
-và:
-
-```text
-src/main/resources/static/js/fragments/AdminArea.js
-```
-
-truy cập bằng:
-
-```text
-/js/fragments/AdminArea.js
-```
-
-**Không viết:**
-
-```text
-/static/css/output.css
-```
-
-**và không viết:**
-
-```text
-/src/main/resources/static/css/output.css
-```
-
-### 15.2. `templates/`
-
-Các file:
-
-```text
-src/main/resources/templates/
-```
-
-không được Spring Boot tự phục vụ như file tĩnh.
-
-Nếu dùng Thymeleaf, controller sẽ trả về tên view:
-
-```java
-@Controller
-public class PageController {
-
-    @GetMapping("/admin/area")
-    public String area() {
-        return "admin/area";
-    }
-}
-```
-
-Spring Boot sẽ tìm:
-
-```text
-templates/admin/area.html
-```
-
-### 15.3. Khuyến nghị cho project hiện tại
-
-Nếu muốn tiếp tục dùng HTML + Web Components thuần, có thể giữ HTML trong `templates/` và dùng Controller để mở trang.
-
-Nếu muốn đơn giản hóa việc phục vụ HTML, có thể chuyển các trang HTML sang:
-
-```text
-static/admin/
-static/auth/
-```
-
-và truy cập trực tiếp bằng URL.
-
-**Không nên trộn hai cách một cách tùy tiện.** Chọn một chiến lược routing cho toàn bộ frontend.
-
-## 16. Sửa đường dẫn Frontend khi chạy Spring Boot
+## 3. Sửa đường dẫn Frontend khi chạy Spring Boot
 
 HTML hiện tại được viết theo kiểu dùng Live Server, ví dụ:
 
@@ -236,44 +140,10 @@ resources/static/js/...
 
 resources/templates/admin/index.html
         ↓
-/admin/index       ← nếu dùng Controller + Thymeleaf
+/admin/index 
 ```
 
-## 17. Kết nối MySQL
-
-Application hiện được cấu hình theo database:
-
-```text
-smart_restaurant
-```
-
-Ví dụ cấu hình:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/smart_restaurant?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8
-spring.datasource.username=root
-spring.datasource.password=YOUR_DATABASE_PASSWORD
-
-spring.jpa.hibernate.ddl-auto=update
-```
-
-Sau khi MySQL đang chạy, Spring Boot sẽ kết nối tới:
-
-```text
-localhost:3306/smart_restaurant
-```
-
-### Khuyến nghị
-
-Trong quá trình phát triển có thể dùng:
-
-```properties
-spring.jpa.hibernate.ddl-auto=update
-```
-
-Nhưng khi deploy production cần quản lý schema/database migration cẩn thận, không nên phụ thuộc hoàn toàn vào `ddl-auto=update`.
-
-## 18. API contract giữa Frontend và Spring Boot
+## 4. API contract giữa Frontend và Spring Boot
 
 Frontend cần các endpoint sau.
 
@@ -318,7 +188,7 @@ GET /api/revenue/daily?days=N
 
 `/api/revenue/daily?days=14` trả về danh sách ngày theo thứ tự tăng dần và phải có cả những ngày không phát sinh hóa đơn với `total = 0`.
 
-## 19. Quy ước JSON quan trọng
+## 5. Quy ước JSON
 
 ### ID
 
@@ -330,27 +200,7 @@ Frontend cần `id` dưới dạng **String**:
 }
 ```
 
-Không nên trả:
-
-```json
-{
-  "id": 11
-}
-```
-
-vì frontend có các phép so sánh với `dataset.id` dạng chuỗi.
-
-Nếu database dùng:
-
-```java
-Long id;
-```
-
-hãy chuyển thành String trong DTO:
-
-```java
-String.valueOf(entity.getId())
-```
+vì frontend có các phép so sánh với `dataset.id` dạng chuỗi nên hãy chuyển thành String trong DTO nếu cần thiết:
 
 ### Thời gian
 
@@ -382,7 +232,7 @@ Tiền được biểu diễn bằng số nguyên VNĐ:
 }
 ```
 
-Không dùng `double` cho tiền.
+**Lưu ý** Không dùng `double` cho tiền.
 
 ### Trạng thái bàn
 
@@ -396,7 +246,7 @@ reserved
 merged
 ```
 
-## 20. Model dữ liệu chính
+## 6. Model dữ liệu chính
 
 ### Area
 
@@ -446,149 +296,22 @@ merged
 }
 ```
 
-## 21. Luật nghiệp vụ phải nằm ở Backend
-
-Khi chuyển sang Spring Boot, không nên chỉ biến backend thành một API CRUD đơn giản.
+## 7. Luật nghiệp vụ ở Backend
 
 Các luật nghiệp vụ phải được kiểm tra tại backend.
 
-Ví dụ:
+| Thao tác | Điều kiện / thông báo lỗi (HTTP 400/404/409) |
+|---|---|
+| Lưu khu vực | Tên trống: `Vui lòng nhập tên khu vực`; trùng (không phân biệt hoa/thường): `Tên khu vực đã tồn tại`; tên bàn trống: `Tên bàn không được để trống`; trùng trong khu vực: `Tên bàn "X" bị trùng`; sức chứa không nguyên trong 1–50: `Sức chứa không hợp lệ`; xoá bàn đang dùng/đặt trước: `<tên> đang được sử dụng, không thể xoá` |
+| Xoá / tạm ngưng khu vực | Còn bàn khác `empty`: `Khu vực còn bàn đang sử dụng hoặc đã đặt trước` |
+| Mở bàn | Bàn phải `empty` hoặc `reserved`; `guests` nguyên ≥ 1 và ≤ (sức chứa bàn + các bàn đã gộp): `Bàn chỉ chứa tối đa N khách`. Kết quả: `serving`, `startedAt = now`, xoá đặt trước, `orders = []` |
+| Đặt món | Bàn phải `serving`; cộng dồn món cùng tên + cùng giá |
+| Yêu cầu thanh toán | Bàn `serving` và có ≥ 1 món: `Bàn chưa có món nào để thanh toán` → `paying` |
+| Thanh toán | Bàn `paying`; tiền mặt mà `received < tổng`: `Số tiền khách đưa chưa đủ`. **Trong một transaction**: tạo hoá đơn, trả bàn + mọi bàn đã gộp về `empty` (xoá guests/orders/mergedIds/mergedInto) |
+| Chuyển bàn | Nguồn `serving`/`paying`; đích phải `empty`: `Bàn đích không phải đang trống`; `guests` ≤ sức chứa đích + bàn đã gộp. Chuyển trạng thái, khách, giờ vào, món, danh sách gộp sang đích; nguồn về `empty` |
+| Gộp bàn | Nguồn `serving`; đích `empty` hoặc `serving`; không gộp với chính nó. Cộng khách, giờ vào = nhỏ hơn, gộp món; nguồn (và các bàn nó đã gộp) thành `merged` với `mergedInto = đích`; đích có `mergedIds` |
 
-### Mở bàn
-
-```text
-Bàn phải empty hoặc reserved.
-guests >= 1.
-guests <= sức chứa.
-```
-
-Sau khi mở:
-
-```text
-status = serving
-startedAt = now
-orders = []
-```
-
-### Đặt món
-
-```text
-Bàn phải serving.
-```
-
-Nếu cùng tên và cùng giá thì cộng `qty`.
-
-### Yêu cầu thanh toán
-
-```text
-Bàn phải serving.
-Bàn phải có ít nhất một món.
-```
-
-Sau đó:
-
-```text
-status = paying
-```
-
-### Thanh toán
-
-```text
-Bàn phải paying.
-```
-
-Nếu thanh toán tiền mặt:
-
-```text
-received >= total
-```
-
-Quá trình thanh toán cần nằm trong **một database transaction**:
-
-```text
-Tạo hóa đơn
-    +
-Trả bàn về empty
-    +
-Trả các bàn đã gộp về empty
-```
-
-Nếu một bước lỗi thì toàn bộ thao tác phải rollback.
-
-### Chuyển bàn
-
-```text
-Nguồn: serving hoặc paying
-Đích: empty
-```
-
-### Gộp bàn
-
-```text
-Nguồn: serving
-Đích: empty hoặc serving
-Không được gộp với chính nó
-```
-
-Các luật chi tiết được mô tả trong `SPRING_BOOT_GUIDE.md`.
-
-## 22. Cấu trúc Backend Spring Boot đề xuất
-
-Khi triển khai phần Java, nên tách theo trách nhiệm:
-
-```text
-src/main/java/.../
-├── controller/
-│   ├── AreaController.java
-│   ├── TableController.java
-│   ├── RevenueController.java
-│   └── AuthController.java
-│
-├── service/
-│   ├── AreaService.java
-│   ├── TableService.java
-│   ├── RevenueService.java
-│   └── AuthService.java
-│
-├── repository/
-│   ├── AreaRepository.java
-│   ├── DiningTableRepository.java
-│   └── InvoiceRepository.java
-│
-├── entity/
-│   ├── Area.java
-│   ├── DiningTable.java
-│   ├── Invoice.java
-│   └── ...
-│
-├── dto/
-│   ├── AreaDto.java
-│   ├── TableDto.java
-│   └── ...
-│
-├── exception/
-│   ├── BusinessException.java
-│   └── ApiExceptionHandler.java
-│
-└── config/
-    └── SecurityConfig.java
-```
-
-Luồng xử lý nên là:
-
-```text
-Controller
-    ↓
-Service
-    ↓
-Repository
-    ↓
-Database
-```
-
-Controller không nên chứa toàn bộ logic nghiệp vụ.
-
-## 23. Xử lý lỗi API
+## 8. Xử lý lỗi API
 
 Frontend đang mong đợi lỗi nghiệp vụ có dạng:
 
@@ -611,26 +334,9 @@ Content-Type: application/json
 }
 ```
 
-Có thể gom xử lý lỗi bằng:
-
-```java
-@RestControllerAdvice
-public class ApiExceptionHandler {
-
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, String>> business(
-            BusinessException e) {
-
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(Map.of("message", e.getMessage()));
-    }
-}
-```
-
 Frontend có thể hiển thị trực tiếp `message`.
 
-## 24. Authentication
+## 9. Authentication
 
 Frontend hiện sử dụng:
 
@@ -645,161 +351,9 @@ Frontend hiện sử dụng:
 credentials: 'same-origin'
 ```
 
-Do đó hướng triển khai phù hợp là backend đặt JWT/session token trong **HttpOnly cookie**.
+Khuyến nghị hướng triển khai phù hợp là backend đặt JWT/session token trong **HttpOnly cookie**.
 
-Luồng:
-
-```text
-POST /api/auth/login
-        ↓
-Spring Security xác thực
-        ↓
-Set-Cookie
-        ↓
-Browser lưu cookie
-        ↓
-Request API tiếp theo tự gửi cookie
-```
-
-Khi API trả:
-
-```text
-401 Unauthorized
-```
-
-frontend sẽ chuyển về `LOGIN_URL`.
-
-Nếu project dùng JWT trong response body thay vì cookie, phải thay đổi `HttpClient.js` để lưu token và gửi:
-
-```http
-Authorization: Bearer <token>
-```
-
-## 25. SecurityFilterChain
-
-Backend cần cho phép các tài nguyên công khai:
-
-```text
-/css/**
-/js/**
-/images/**
-/api/auth/**
-```
-
-Các API quản trị còn lại yêu cầu đăng nhập.
-
-Mô hình:
-
-```text
-Static resources ────────► permitAll
-Auth API ────────────────► permitAll
-Admin API ───────────────► authenticated
-```
-
-Cookie nên có:
-
-```text
-HttpOnly
-Secure
-SameSite=Lax
-```
-
-## 26. Chạy project
-
-### Bước 1 — Chuẩn bị MySQL
-
-Tạo database:
-
-```text
-smart_restaurant
-```
-
-hoặc để JDBC URL sử dụng:
-
-```text
-createDatabaseIfNotExist=true
-```
-
-### Bước 2 — Kiểm tra application properties
-
-Không commit mật khẩu thật vào Git.
-
-Nên dùng biến môi trường:
-
-```properties
-spring.datasource.password=${DB_PASSWORD}
-spring.mail.password=${MAIL_PASSWORD}
-jwt.secret-key=${JWT_SECRET}
-```
-
-### Bước 3 — Build Tailwind
-
-Frontend hiện có:
-
-```text
-static/css/input.css
-static/css/output.css
-```
-
-Sau khi thay đổi Tailwind source, build lại `output.css` bằng Tailwind CLI theo cấu hình của project.
-
-### Bước 4 — Chạy Spring Boot
-
-Nếu project dùng Maven:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Windows:
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-Nếu project dùng Gradle:
-
-```bash
-./gradlew bootRun
-```
-
-### Bước 5 — Chuyển API mode
-
-Trong:
-
-```text
-static/js/config.js
-```
-
-đặt:
-
-```js
-export const API_MODE = 'spring';
-```
-
-### Bước 6 — Kiểm tra API
-
-Có thể kiểm tra lần lượt:
-
-```text
-GET /api/areas
-GET /api/menu-items
-GET /api/revenue/today
-GET /api/revenue/daily?days=14
-```
-
-Sau đó kiểm tra các thao tác:
-
-```text
-Mở bàn
-Đặt món
-Yêu cầu thanh toán
-Thanh toán
-Chuyển bàn
-Gộp bàn
-```
-
-## 27. Checklist chuyển từ Frontend Demo → Spring Boot
+## 10. Checklist chuyển từ Frontend Demo → Spring Boot
 
 ```text
 [ ] MySQL đang chạy
@@ -825,91 +379,7 @@ Gộp bàn
 [ ] Không còn secret/password thật trong Git
 ```
 
-## 28. Các lỗi thường gặp
-
-### `Refused to apply style ... MIME type ('text/html')`
-
-Thường xảy ra khi đang dùng Live Server và đường dẫn CSS không trỏ tới file CSS thật.
-
-Ví dụ không nên:
-
-```html
-<link rel="stylesheet"
-      href="/src/main/resources/static/css/output.css">
-```
-
-Khi chạy Spring Boot phải dùng:
-
-```html
-<link rel="stylesheet" href="/css/output.css">
-```
-
-### `404` khi import Web Component
-
-Sai:
-
-```html
-<script type="module"
-        src="../../static/js/fragments/AdminArea.js">
-</script>
-```
-
-Đúng khi chạy Spring Boot:
-
-```html
-<script type="module"
-        src="/js/fragments/AdminArea.js">
-</script>
-```
-
-### API trả `id` là number
-
-Nếu frontend có:
-
-```js
-dataset.id === table.id
-```
-
-thì:
-
-```text
-dataset.id = "11"
-table.id   = 11
-```
-
-sẽ không bằng nhau.
-
-Hãy trả:
-
-```json
-"id": "11"
-```
-
-### CORS
-
-Nếu frontend và backend chạy cùng origin bằng Spring Boot:
-
-```text
-http://localhost:8080
-```
-
-thì không cần cấu hình CORS cho trường hợp thông thường.
-
-Nếu frontend chạy riêng bằng Live Server:
-
-```text
-http://127.0.0.1:5500
-```
-
-và backend ở:
-
-```text
-http://localhost:8080
-```
-
-thì cần cấu hình CORS và cookie phù hợp. Khi chuyển sang chạy frontend trực tiếp từ Spring Boot, nên ưu tiên same-origin để đơn giản hóa authentication.
-
-## 29. Tài liệu tham chiếu
+## 11. Tài liệu tham chiếu
 
 - `SPRING_BOOT_GUIDE.md`: contract API, JSON model, luật nghiệp vụ và khung code Spring Boot.
 - `static/js/config.js`: chọn nguồn dữ liệu.
@@ -923,38 +393,6 @@ thì cần cấu hình CORS và cookie phù hợp. Khi chuyển sang chạy fron
 - `static/`: CSS, JS, image được Spring Boot phục vụ trực tiếp.
 
 ---
-
-# 30. Lưu ý bảo mật quan trọng
-
-File cấu hình development hiện chứa thông tin nhạy cảm như:
-
-```text
-spring.datasource.password
-spring.mail.password
-jwt.secret-key
-refresh-token.secret-key
-access-token.secret-key
-```
-
-**Không commit các giá trị thật lên Git.**
-
-Nếu các giá trị này đã từng được chia sẻ hoặc commit, cần **thu hồi/đổi secret** trước khi sử dụng production.
-
-Nên chuyển sang biến môi trường:
-
-```properties
-spring.datasource.password=${DB_PASSWORD}
-
-spring.mail.password=${MAIL_PASSWORD}
-
-jwt.secret-key=${JWT_SECRET}
-refresh-token.secret-key=${REFRESH_TOKEN_SECRET}
-access-token.secret-key=${ACCESS_TOKEN_SECRET}
-```
-
-Đồng thời thêm các file local/dev chứa secret vào `.gitignore` nếu chúng không dùng cho deployment.
-
-> `SPRING_BOOT_GUIDE.md` cũng lưu ý rằng ba JWT secret hiện đang dùng cùng một giá trị; nên sử dụng secret riêng cho từng mục đích.
 ---
 
 # Hướng dẫn sử dụng thiết kế Frontend
