@@ -22,7 +22,7 @@ async function refresh() {
     if (loading) { again = true; return; }
     loading = true;
     try {
-        const [today, daily] = await Promise.all([revenueService.getToday(), revenueService.getDaily(45)]);
+        const [today, daily] = await Promise.all([revenueService.getToday(), revenueService.getDaily()]);
         ring.setAttribute('value', today.total);
         ring.setAttribute('note', today.count ? `${today.count} hoá đơn hôm nay` : 'Chưa có hoá đơn hôm nay');
         const points = daily.map(d => ({ date: d.date, value: toMillion(d.total) }));
