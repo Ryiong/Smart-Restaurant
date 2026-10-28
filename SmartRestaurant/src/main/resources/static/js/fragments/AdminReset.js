@@ -1,4 +1,5 @@
 import '../components/InputWithLabel.js';
+import { SPRING_BASE, LOGIN_URL } from '../config.js';
 
 class AppReset extends HTMLElement {
   connectedCallback() {
@@ -32,14 +33,14 @@ class AppReset extends HTMLElement {
     const data = Object.fromEntries(new FormData(this.form));
 
     try {
-      const res = await fetch('/api/auth/reset', { //demo for design only
+      const res = await fetch(`${SPRING_BASE}/auth/reset`, { //demo for design only
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (!res.ok) throw new Error('Sai email');
-      location.href = '';
+      location.href = `${LOGIN_URL}`;
     }
     catch (err) {
       this.setError(err.message);

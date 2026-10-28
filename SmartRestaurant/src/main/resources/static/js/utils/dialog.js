@@ -75,7 +75,7 @@ export function toast(message, type = 'error') {
 
     const el = document.createElement('div');
     el.setAttribute('role', 'status');
-    el.className = 'max-w-sm rounded-xl border-2 bg-white px-4 py-2.5 text-sm font-semibold shadow-lg' + 
+    el.className = 'max-w-sm rounded-xl border-2 bg-white px-4 py-2.5 text-sm font-semibold shadow-lg ' + 
         (type === 'error' ? 'border-red-200 bg-red-50 text-red-700' : 'border-primary-50 text-primary-800');
     el.textContent = message;
     host.append(el);

@@ -1,5 +1,6 @@
 import '../components/HiddenInput.js';
 import '../components/InputWithLabel.js';
+import { SPRING_BASE, ADMIN_URL } from '../config.js';
 
 class AppLogin extends HTMLElement {
   connectedCallback() {
@@ -42,14 +43,14 @@ class AppLogin extends HTMLElement {
     const data = Object.fromEntries(new FormData(this.form));
 
     try {
-      const res = await fetch('/api/auth/login', { //demo for design only
+      const res = await fetch(`${SPRING_BASE}/auth/login`, { //demo for design only
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (!res.ok) throw new Error('Sai tên đăng nhập hoặc mật khẩu');
-      location.href = '';
+      location.href = `${ADMIN_URL}`;
     }
     catch (err) {
       this.setError(err.message);

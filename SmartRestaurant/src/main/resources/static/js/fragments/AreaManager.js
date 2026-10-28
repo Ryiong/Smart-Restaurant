@@ -94,7 +94,13 @@ class AreaManager extends HTMLElement {
         } finally { this.busy = false; }
     }
 
-    renderAll() { this.renderTabs(); this.renderToolbar(); this.renderFilters(); this.renderGrid(); this.renderDetail(); }
+    renderAll() {
+        this.renderTabs(); 
+        this.renderToolbar(); 
+        this.renderFilters(); 
+        this.renderGrid(); 
+        this.renderDetail(); 
+    }
 
     renderTabs() {
         const { areas, areaId, loading } = this.state;
