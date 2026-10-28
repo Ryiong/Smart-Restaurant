@@ -1,5 +1,5 @@
 import { API_MODE } from '../config.js';
-import { http } from './HttpClient.js';
+import { springAreaService } from './AreaService.spring.js';
 import { mockAreaService } from './AreaService.mock.js';
 import { mockAPIAreaService } from './AreaService.mockapi.js';
 

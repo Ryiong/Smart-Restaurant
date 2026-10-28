@@ -1,5 +1,4 @@
-const esc = s => String(s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+import { esc } from '../utils/format.js';
 
 const VARIANTS = {
     primary: 'border-primary-600 bg-primary-600 text-white',

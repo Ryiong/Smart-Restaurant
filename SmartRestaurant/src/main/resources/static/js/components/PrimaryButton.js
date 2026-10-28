@@ -1,7 +1,5 @@
 import { ICONS } from '../icon.js';
-
-const esc = s => String(s).replace(/[&<>"']/g, c =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+import { esc } from '../utils/format.js';
 
 const VARIANTS = {
     primary: 'border-primary-100 text-primary-500 hover:border-primary-600 bg-white',
