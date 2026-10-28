@@ -103,7 +103,7 @@ public class TableController {
 
     @PatchMapping("/{tableId}/activate")
     @Operation(summary = "Mở lại bàn")
-    @PreAuthorize("hasAuthority('PERM_TABLE_ACTIVATE'))")
+    @PreAuthorize("hasAuthority('PERM_TABLE_ACTIVATE')")
     ResponseEntity<ApiResponse<Void>> activate(
             @PathVariable Long tableId
     ) {

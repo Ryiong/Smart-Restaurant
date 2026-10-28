@@ -1,9 +1,10 @@
 import { ICONS, LOGO } from '../icon.js';
-import { SPRING_BASE, LOGIN_URL } from '../config.js';
+import { http, logoutRedirect, requireLogin } from '../services/HttpClient.js';
+import { auth } from '../services/AuthStore.js';
 
 const NAV = [
-    { href: '/src/main/resources/templates/admin/index.html', name: 'Tổng quan', icon: 'dashboard' },
-    { href: '/src/main/resources/templates/admin/area.html', name: 'Bàn & Khu vực', icon: 'table' },
+    { href: '/admin/index.html', name: 'Tổng quan', icon: 'dashboard' },
+    { href: '/admin/area.html', name: 'Bàn & Khu vực', icon: 'table' },
     { href: '#', name: 'Thực đơn', icon: 'menu' },
     { href: '#', name: 'Kho nguyên liệu', icon: 'storage' },
     { href: '#', name: 'Cài đặt', icon: 'setting' },
@@ -17,6 +18,7 @@ const LINK_IDLE = 'text-support-900';
 class AppNavigation extends HTMLElement {
     connectedCallback() {
         if (this.dataset.ready) return;
+        if (!requireLogin()) return;
         this.dataset.ready = '1';
 
         this.classList.add('block', 'fixed', 'top-0', 'left-0', 'h-screen', 'w-min', 'z-50', 'bg-white');
@@ -62,30 +64,12 @@ class AppNavigation extends HTMLElement {
 
     async onClick(e) {
         e.preventDefault();
-        this.setError('');
-        this.submitBtn.disabled = true;
-
-        const data = Object.fromEntries(new FormData(this.form));
-
+        this.logoutBtn.disabled = true;
         try {
-            const res = await fetch(`${SPRING_BASE}/auth/logout`, { //demo for design only
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-
-            location.href = `${LOGIN_URL}`;
-        }
-        catch (err) {
-            this.setError(err.message);
-        } finally {
-            this.submitBtn.disabled = false;
-        }
-    }
-
-    setError(msg) {
-        this.error.textContent = msg;
-        this.error.classList.toggle('hidden', !msg);
+            // POST /auth/logout?refreshToken=...
+            if (auth.refreshToken) await http('POST', '/auth/logout', undefined, { query: { refreshToken: auth.refreshToken }, auth: false });
+        } catch { /* vẫn đăng xuất phía client */ }
+        logoutRedirect();
     }
 }
 

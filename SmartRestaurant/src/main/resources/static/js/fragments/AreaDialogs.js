@@ -102,7 +102,7 @@ export function orderDialog({ tableName, menu }) {
             bindActions(body, {
                 inc: el => step(el.dataset.id, 1),
                 dec: el => step(el.dataset.id, -1),
-                ok: () => close(menu.filter(m => qty[m.id] > 0).map(m => ({ name: m.name, price: m.price, qty: qty[m.id] }))),
+                ok: () => close(menu.filter(m => qty[m.id] > 0).map(m => ({ id: m.id, name: m.name, price: m.price, qty: qty[m.id] }))),
                 cancel: () => close(),
             });
         },

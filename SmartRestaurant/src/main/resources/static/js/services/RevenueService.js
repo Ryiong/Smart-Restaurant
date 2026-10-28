@@ -1,5 +1,5 @@
 import { API_MODE } from '../config.js';
-import { http } from './HttpClient.js';
+import { springRevenue } from './RevenueService.spring.js';
 import { revenueStore, dateKey, REVENUE_EVENT } from './RevenueStore.js';
 import { mockApiRevenueService } from './RevenueService.mockapi.js';
 
@@ -49,8 +49,8 @@ const localRevenueService = {
 };
 
 const springRevenueService = {
-    getToday: () => http('GET', '/revenue/today'),
-    getDaily: days => http('GET', `/revenue/daily?days=${days}`),
+    getToday: () => springRevenue.getToday(),
+    getDaily: days => springRevenue.getDaily(days),
     subscribe(cb) {
         const id = setInterval(cb, 30000);
         return () => clearInterval(id);

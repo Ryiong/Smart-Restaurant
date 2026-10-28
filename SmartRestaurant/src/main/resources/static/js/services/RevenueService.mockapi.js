@@ -1,4 +1,4 @@
-import { mockApi, mockApiList } from './MockApiClient.js';
+import { mockApi, mockApiList } from './MockAPIClient.js';
 import { dateKey, demoDay, REVENUE_EVENT } from './RevenueStore.js';
 
 /**

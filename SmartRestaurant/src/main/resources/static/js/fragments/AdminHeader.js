@@ -1,3 +1,5 @@
+import { auth } from '../services/AuthStore.js';
+
 class AppHeader extends HTMLElement {
     connectedCallback() {
         if (this.dataset.ready) return;
@@ -5,7 +7,7 @@ class AppHeader extends HTMLElement {
         
         const title = this.getAttribute('title') ?? '';
         const dataTitle = this.getAttribute('data-title') ?? '';
-        const userName = this.getAttribute('username') ?? 'Admin';
+        const userName = auth.user?.name || this.getAttribute('username') || 'Admin';
         const userImage = this.getAttribute('user-image') ?? 'https://placehold.co/400';
         const userRole = this.getAttribute('user-role') ?? 'Chức vụ';
 

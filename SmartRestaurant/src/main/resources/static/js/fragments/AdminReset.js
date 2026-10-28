@@ -1,5 +1,6 @@
 import '../components/InputWithLabel.js';
-import { SPRING_BASE, LOGIN_URL } from '../config.js';
+import { LOGIN_URL } from '../config.js';
+import { http } from '../services/HttpClient.js';
 
 class AppReset extends HTMLElement {
   connectedCallback() {
@@ -10,12 +11,12 @@ class AppReset extends HTMLElement {
     this.innerHTML = `
         <form id="login-form" class="min-w-md">
             <h1 class="mb-2">Lấy lại mật khẩu</h1>
-            <form-field label="Email" name="email" placeholder="example@email.com"></form-field>
+            <form-field label="Email" name="email" type="email" autocomplete="email" placeholder="example@email.com"></form-field>
             
             <p id="login-form__error" data-error="" class="flex items-center gap-1.5 mt-1.5 mb-.5 text-bug font-medium empty:hidden"></p>
           <button id="login-form__submit" type="submit" class="w-full min-h-12.5 border rounded-xl bg-primary-700 text-white font-bold cursor-pointer shadow-[0_8px_20px_-8px_rgba(20,83,45,.6)] hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-700">Gửi yêu cầu</button>
           <div id="login-form__live" role="status" aria-live="polite" data-live=""></div>
-          <p id="login-form__foot" class="mt-6 text-text text-center">Quay lại trang <a id="login-form__link" href="/src/main/resources/templates/auth/login.html" class="text-primary-600 font-medium no-underline hover:underline hover:underline-offset- rounded-sm">ĐĂNG NHẬP</a></p>
+          <p id="login-form__foot" class="mt-6 text-text text-center">Quay lại trang <a id="login-form__link" href="/auth/login.html" class="text-primary-600 font-medium no-underline hover:underline hover:underline-offset- rounded-sm">ĐĂNG NHẬP</a></p>
         </form>
       `;
     this.form = this.querySelector('#login-form');
@@ -33,14 +34,9 @@ class AppReset extends HTMLElement {
     const data = Object.fromEntries(new FormData(this.form));
 
     try {
-      const res = await fetch(`${SPRING_BASE}/auth/reset`, { //demo for design only
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) throw new Error('Sai email');
-      location.href = `${LOGIN_URL}`;
+      // POST /auth/resend-otp — @RequestBody String email → gửi email thô (text/plain), KHÔNG phải JSON {email}
+      await http('POST', '/auth/resend-otp', data.email?.trim(), { auth: false, text: true });
+      location.href = LOGIN_URL;
     }
     catch (err) {
       this.setError(err.message);
